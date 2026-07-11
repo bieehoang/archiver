@@ -1,0 +1,26 @@
+{
+  "name": "ui-archiver",
+  "version": "2.0.0",
+  "description": "Static website archiver for websites you own or are authorized to back up.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "crawler",
+    "playwright",
+    "archiver",
+    "website"
+  ],
+  "author": "Bi",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "cheerio": "^1.1.2",
+    "cli-progress": "^3.12.0",
+    "fs-extra": "^11.3.0",
+    "ora": "^8.2.0",
+    "playwright": "^1.54.2"
+  }
+}
