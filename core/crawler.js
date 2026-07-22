@@ -103,7 +103,7 @@ export class Crawler {
         try {
 
             await controller.goto(url);
-
+            await recorder.waitForPending(); 
             const html = await controller.getHtml();
             const localPath = urlToLocalPath(url, this.config.output);
 
@@ -140,7 +140,7 @@ export class Crawler {
             logger.success(`Đã lưu trang: ${url}`);
 
         } finally {
-
+            await recorder.waitForPending();
             recorder.stop();
             await controller.close();
 

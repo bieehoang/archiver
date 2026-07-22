@@ -13,6 +13,7 @@ export class NetworkRecorder {
         this.page = page;
         this.onAsset = onAsset;
         this.seen = new Set();
+        this.pending = new Set();
 
         this._handler = this._handleResponse.bind(this);
 
@@ -30,25 +31,44 @@ export class NetworkRecorder {
 
     }
 
-    async _handleResponse(response) {
+    /**
+     * Chờ toàn bộ asset đang được xử lý (tải + lưu) hoàn tất.
+     */
+    async waitForPending() {
+
+        while (this.pending.size > 0)
+            await Promise.allSettled([...this.pending]);
+
+    }
+
+    _handleResponse(response) {
+
+        const url = response.url();
+
+        if (this.seen.has(url))
+            return;
+
+        const request = response.request();
+        const resourceType = request.resourceType();
+
+        if (!TRACKED_RESOURCE_TYPES.includes(resourceType))
+            return;
+
+        if (!response.ok())
+            return;
+
+        this.seen.add(url);
+
+        const task = this._process(response, url)
+            .finally(() => this.pending.delete(task));
+
+        this.pending.add(task);
+
+    }
+
+    async _process(response, url) {
 
         try {
-
-            const url = response.url();
-
-            if (this.seen.has(url))
-                return;
-
-            const request = response.request();
-            const resourceType = request.resourceType();
-
-            if (!TRACKED_RESOURCE_TYPES.includes(resourceType))
-                return;
-
-            if (!response.ok())
-                return;
-
-            this.seen.add(url);
 
             const buffer = await response.body();
             const contentType = response.headers()["content-type"] || "";
